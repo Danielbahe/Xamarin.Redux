@@ -13,15 +13,19 @@ using AppSample.ViewModels;
 
 namespace AppSample.Views
 {
+    using Xamarin.Redux;
+
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
     public partial class ItemsPage : ContentPage
     {
+        private readonly Store<AppState> _store;
         ItemsViewModel viewModel;
 
-        public ItemsPage()
+        public ItemsPage(Store<AppState> store)
         {
+            _store = store;
             InitializeComponent();
 
             BindingContext = viewModel = new ItemsViewModel();

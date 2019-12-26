@@ -1,36 +1,35 @@
-﻿using System;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using AppSample.Services;
-using AppSample.Views;
-using AppSample.Models;
-using Xamarin.Redux;
-using AppSample.Actions;
-
-namespace AppSample
+﻿namespace AppSample
 {
+    using Xamarin.Forms;
+    using AppSample.Services;
+    using AppSample.Views;
+    using AppSample.Models;
+    using Xamarin.Redux;
+    using AppSample.Actions;
+
     public partial class App : Application
     {
-
         public App()
         {
             InitializeComponent();
 
-            SetupState();
+            var appStore = SetupState();
 
             DependencyService.Register<MockDataStore>();
-            MainPage = new MainPage();
+            MainPage = new MainPage(appStore);
         }
 
-        private static void SetupState()
+        private Store<AppState> SetupState()
         {
-            var appStore = Store<AppState>.Create();
+            var appStore = Store<AppState>.Create(new CustomReducer());
             var appState = appStore.State;
 
-            var selector = new Selector<Item, AppState>((state) => state.CustomSubState);
-            var subState = appStore.Select<Item>(selector);
+            var selector = new CustomSelector();
+            var subState = appStore.Select(selector);
 
             appStore.Dispatch(new CustomAction());
+
+            return appStore;
         }
 
         protected override void OnStart()
