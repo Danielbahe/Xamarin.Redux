@@ -6,6 +6,7 @@
     using AppSample.Models;
     using Xamarin.Redux;
     using AppSample.Actions;
+    using AppSample.Effects;
 
     public partial class App : Application
     {
@@ -22,7 +23,10 @@
         private Store<AppState> SetupState()
         {
             var appStore = Store<AppState>.Create(new CustomReducer());
+            appStore.RegisterEffects(new ModuleEffects());
             var appState = appStore.State;
+
+
 
             var selector = new CustomSelector();
             var subState = appStore.Select(selector);

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
-using AppSample.Models;
-
-namespace AppSample.Views
+﻿namespace AppSample.Views
 {
     using Xamarin.Redux;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Threading.Tasks;
+    using Xamarin.Forms;
+    using AppSample.Models;
 
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
@@ -20,12 +16,13 @@ namespace AppSample.Views
         Dictionary<int, NavigationPage> MenuPages = new Dictionary<int, NavigationPage>();
         public MainPage(Store<AppState> store)
         {
-            _store = store;
+            _store = store;            
             InitializeComponent();
 
             MasterBehavior = MasterBehavior.Popover;
 
             MenuPages.Add((int)MenuItemType.Browse, (NavigationPage)Detail);
+            this.Detail = new NavigationPage(new ItemsPage(_store));
         }
 
         public async Task NavigateFromMenu(int id)

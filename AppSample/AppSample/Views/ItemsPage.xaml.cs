@@ -1,34 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
-using AppSample.Models;
-using AppSample.Views;
-using AppSample.ViewModels;
-
-namespace AppSample.Views
+﻿namespace AppSample.Views
 {
+    using AppSample.Actions;
+    using AppSample.Services;
     using Xamarin.Redux;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using Xamarin.Forms;
+    using AppSample.Models;
+    using AppSample.ViewModels;
 
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
-    public partial class ItemsPage : ContentPage
+    public partial class ItemsPage : ReduxPage<AppState>
     {
-        private readonly Store<AppState> _store;
-        ItemsViewModel viewModel;
+        public List<Item> Items { get; set; }
 
-        public ItemsPage(Store<AppState> store)
+        public ItemsPage(Store<AppState> store) : base(store)
         {
-            _store = store;
             InitializeComponent();
-
-            BindingContext = viewModel = new ItemsViewModel();
+            ItemsListView.RefreshCommand = new Command(Refresh);
         }
 
         async void OnItemSelected(object sender, SelectedItemChangedEventArgs args)
@@ -36,7 +29,7 @@ namespace AppSample.Views
             var item = args.SelectedItem as Item;
             if (item == null)
                 return;
-
+            //Store.Dispatch(new ResetList());
             await Navigation.PushAsync(new ItemDetailPage(new ItemDetailViewModel(item)));
 
             // Manually deselect item.
@@ -50,10 +43,22 @@ namespace AppSample.Views
 
         protected override void OnAppearing()
         {
+            var data = DependencyService.Get<IDataStore<Item>>();
+            var items = data.GetItemsAsync().ToList();
+            Store.Dispatch(new InitializeItems(items));
+            ItemsListView.ItemsSource = Store.State.Items;
             base.OnAppearing();
+        }
 
-            if (viewModel.Items.Count == 0)
-                viewModel.LoadItemsCommand.Execute(null);
+        public void Refresh()
+        {
+            OnStateChanged();
+            ItemsListView.IsRefreshing = false;
+        }
+
+        protected override void OnStateChanged()
+        {
+            ItemsListView.ItemsSource = Store.State.Items;
         }
     }
 }
